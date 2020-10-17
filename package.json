@@ -1,0 +1,69 @@
+{
+  "name": "electron-react-typescript-boilerplate",
+  "version": "2.0.0",
+  "description": "Template project for desktop apps using Electron, React and Typescript",
+  "author": "Marcelo Augusto",
+  "license": "MIT",
+  "keywords": [
+    "electron",
+    "react",
+    "typescript",
+    "hot"
+  ],
+  "homepage": "https://github.com/marceloaugusto80/electron-react-typescript-boilerplate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marceloaugusto80/electron-react-typescript-boilerplate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marceloaugusto80/electron-react-typescript-boilerplate/issues"
+  },
+  "main": "main-process.js",
+  "scripts": {
+    "build": "npx webpack --env.NODE_ENV=development --env.target=render && npx webpack --env.NODE_ENV=development --env.target=main",
+    "build-prod": "npx webpack --env.NODE_ENV=production --env.target=render && npx webpack --env.NODE_ENV=production --env.target=main",
+    "server": "npx webpack-dev-server --env.NODE_ENV=development --env.target=render --hot",
+    "postinstall": "install-app-deps",
+    "start": "npx webpack --env.NODE_ENV=development --env.target=main && npx electron ./dist/.",
+    "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
+  },
+  "dependencies": {
+    "csv-parser": "^2.3.3",
+    "csv-write-stream": "^2.0.0",
+    "electron-builder": "^22.9.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
+    "sqlite3": "^5.0.0",
+    "webpack-node-externals": "^2.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/polyfill": "^7.11.5",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-react": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/node": "^14.10.3",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/sqlite3": "^3.1.6",
+    "@types/webpack-env": "^1.15.2",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.1.0",
+    "css-loader": "^4.3.0",
+    "electron": "^10.1.2",
+    "electron-packager": "^15.1.0",
+    "html-webpack-externals-plugin": "^3.8.0",
+    "html-webpack-plugin": "^4.4.1",
+    "mini-css-extract-plugin": "^0.11.2",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^10.0.2",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
