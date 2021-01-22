@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as sqlite from 'sqlite3';
 import * as path from 'path';
 import * as os from 'os';
+import sha256 from 'sha256';
 const csvParser = require('csv-parser');
 const csvStream = require('csv-write-stream');
 import '@babel/polyfill';
@@ -50,7 +51,9 @@ app.on("ready", () => {
         id INTEGER PRIMARY KEY,
         vk_id INTEGER,
         email TEXT,
+        email_sha256 TEXT,
         phone INTEGER,
+        phone_sha256 TEXT,
         first_name TEXT,
         last_name TEXT,
         bdate TEXT,
@@ -62,8 +65,9 @@ app.on("ready", () => {
     )`, [], (err) => {
         if (err) { return console.log(err) };
         db.run(`CREATE INDEX IF NOT EXISTS idx_records ON Records (email, phone)`, [], (err) => { if (err) { return console.log(err) } });
+        db.run(`CREATE INDEX IF NOT EXISTS idx_email_hashes ON Records (email_sha256)`, [], (err) => { if (err) { return console.log(err) } });
+        db.run(`CREATE INDEX IF NOT EXISTS idx_phone_hashes ON Records (phone_sha256)`, [], (err) => { if (err) { return console.log(err) } });
     });
-
     db.close();
 });
 
@@ -136,14 +140,18 @@ ipcMain.on('proceed-load', (args, data: { filePath: string }) => {
         const dataReadStream = fs.createReadStream(data.filePath).pipe(csvParser());
         let dataCount = 0;
         let totalCount = 0;
-        let mainQuery = "INSERT INTO Records (vk_id, email, phone, first_name, last_name, bdate, city, IE, SN, TF, JP) VALUES ";
+        let mainQuery = "INSERT INTO Records (vk_id, email, email_sha256, phone, phone_sha256, first_name, last_name, bdate, city, IE, SN, TF, JP) VALUES ";
         for await (const data of dataReadStream) {
             let obj = { ...data };
-            for (let i in obj) { obj[i] = obj[i].replace(/\'/g, "''") }
+            for (let i in obj) {
+                obj[i] = obj[i].replace(/\'/g, "''");
+            }
+            if (obj.email) { obj.email_sha256 = sha256(obj.email); } else { obj.phone_sha256 = ''; }
+            if (obj.phone) { obj.phone_sha256 = sha256(obj.phone); } else { obj.phone_sha256 = ''; }
             if (dataCount === 999) {
-                mainQuery += `(${obj.id}, \'${obj.email}\', \'${obj.phone}\', \'${obj.first_name}\', \'${obj.last_name}\', \'${obj.bdate}\', \'${obj.city}\', ${obj.IE}, ${obj.SN}, ${obj.TF}, ${obj.JP})`;
+                mainQuery += `(${obj.id}, \'${obj.email}\', \'${obj.email_sha256}\', \'${obj.phone}\', \'${obj.phone_sha256}\', \'${obj.first_name}\', \'${obj.last_name}\', \'${obj.bdate}\', \'${obj.city}\', ${obj.IE}, ${obj.SN}, ${obj.TF}, ${obj.JP})`;
             } else {
-                mainQuery += `(${obj.id}, \'${obj.email}\', \'${obj.phone}\', \'${obj.first_name}\', \'${obj.last_name}\', \'${obj.bdate}\', \'${obj.city}\', ${obj.IE}, ${obj.SN}, ${obj.TF}, ${obj.JP}), `;
+                mainQuery += `(${obj.id}, \'${obj.email}\', \'${obj.email_sha256}\', \'${obj.phone}\', \'${obj.phone_sha256}\', \'${obj.first_name}\', \'${obj.last_name}\', \'${obj.bdate}\', \'${obj.city}\', ${obj.IE}, ${obj.SN}, ${obj.TF}, ${obj.JP}), `;
             }
             dataCount++;
             totalCount++;
@@ -151,7 +159,7 @@ ipcMain.on('proceed-load', (args, data: { filePath: string }) => {
                 console.log("Querying...");
                 console.log("TotalCount: " + totalCount);
                 await dbInsert(mainQuery, db);
-                mainQuery = "INSERT INTO Records (vk_id, email, phone, first_name, last_name, bdate, city, IE, SN, TF, JP) VALUES ";
+                mainQuery = "INSERT INTO Records (vk_id, email, email_sha256, phone, phone_sha256, first_name, last_name, bdate, city, IE, SN, TF, JP) VALUES ";
                 dataCount = 0;
             }
             if (stopProcessFlag) {

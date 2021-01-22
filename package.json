@@ -28,12 +28,14 @@
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
+    "@types/sha256": "^0.2.0",
     "csv-parser": "^2.3.3",
     "csv-write-stream": "^2.0.0",
     "electron-builder": "^22.9.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
+    "sha256": "^0.2.0",
     "sqlite3": "^5.0.0",
     "webpack-node-externals": "^2.5.2"
   },
