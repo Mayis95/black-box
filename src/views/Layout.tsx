@@ -20,6 +20,8 @@ export const Layout: React.FunctionComponent<ILayoutProps> = ({ children }) => {
                 <div className="sidebar">
                     <Link to="/">Analyse</Link>
                     <Link to="/loader">Load data</Link>
+                    <Link to="/email">Email analyze</Link>
+                    <Link to="/phone">Phone analyze</Link>
                 </div>
                 <div className="header">
                     <h1>My Application</h1>
